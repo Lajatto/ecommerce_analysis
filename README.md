@@ -8,7 +8,7 @@ I used MYSQL to do my SQL queries and house my data. Google Looker Studio was us
 
 ```SQL
 SELECT 
-	year(website_sessions.created_at) AS yr,
+    year(website_sessions.created_at) AS yr,
     quarter(website_sessions.created_at) AS qtr,
     COUNT(DISTINCT website_sessions.website_session_id) AS sessions, 
     COUNT(DISTINCT orders.order_id) AS orders
