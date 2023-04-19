@@ -25,4 +25,8 @@ GROUP BY
 ```
 
 <img src="Q1.jpg">
-</a>
+
+Fourth quarter is always the strongest quarter for the company in terms of website sessions and orders. 
+
+### 2.Quarterly figures since launching for session-to-order conversion rate, revenue per order, revenue per session.
+
