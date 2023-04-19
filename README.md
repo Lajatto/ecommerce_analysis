@@ -50,7 +50,7 @@ GROUP BY
 
 We're seeing a steady growth when it comes to revenue per session, revenue per order, and conversion rate. 
 
-### 3. Could you pull a quarterly view of orders from Gsearch nonbrand, Bsearch nonbrand, brand search overall, organic search, and direct type-in
+### 3. Pulling a quarterly view of orders from Gsearch nonbrand, Bsearch nonbrand, brand search overall, organic search, and direct type-in.
 
 ```SQL
 SELECT
@@ -114,4 +114,146 @@ GROUP BY
 	<li>Although gsearch nonbrand has the highest orders as mentioned on the previous item the brand channel group has the best conversion rates.</li>
 	<li>This means that gsearch nonbrand brings a lot of website traffic but only a small percentage of that traffic places an order.</li> 
 	<li>The graph above also shows that all the channel groups have almost identical conversion rates.</li>
+</ul>
+
+### 5. Pulling monthly trends for revenue and margin by product, along with total sales and revenue.
+
+```SQL
+CREATE TEMPORARY TABLE products_table
+SELECT 
+YEAR(website_sessions.created_at) AS yr,
+MONTH(website_sessions.created_at) AS mnth,
+CASE 
+	WHEN website_pageviews.pageview_url = '/the-original-mr-fuzzy' THEN 'mr_fuzzy'
+   	 WHEN website_pageviews.pageview_url = '/the-forever-love-bear' THEN 'love_bear'
+	WHEN website_pageviews.pageview_url = '/the-birthday-sugar-panda' THEN 'sugar_panda'
+   	 WHEN website_pageviews.pageview_url = '/the-hudson-river-mini-bear' THEN 'hudson_bear'
+    END AS product_type,
+website_sessions.website_session_id
+FROM 
+	website_sessions
+		LEFT JOIN website_pageviews
+			ON website_sessions.website_session_id = website_pageviews.website_session_id 
+WHERE 
+	website_sessions.created_at <= '2015-03-20'
+    AND website_pageviews.pageview_url IN ('/the-original-mr-fuzzy', '/the-forever-love-bear', '/the-birthday-sugar-panda', '/the-hudson-river-mini-bear');
+
+
+-- PART 1 monthly trends
+SELECT 
+	products_table.yr,
+    	products_table.mnth,
+    	products_table.product_type, 
+    	SUM(orders.price_usd) AS revenue, 
+    	SUM(orders.price_usd) - SUM(orders.cogs_usd) AS margin
+FROM 
+	products_table
+		LEFT JOIN orders
+			ON products_table.website_session_id = orders.website_session_id 
+GROUP BY 
+	1,2,3;
+
+-- Part 2 total revenue and margins
+SELECT 
+    products_table.product_type, 
+    SUM(orders.price_usd) AS revenue, 
+    SUM(orders.price_usd) - SUM(orders.cogs_usd) AS margin
+FROM 
+	products_table
+		LEFT JOIN orders
+			ON products_table.website_session_id = orders.website_session_id 
+GROUP BY 
+	1;
+```
+<img src="Q5.jpg">
+<ul>
+	<li>Demand for all the four products is at the highest in November, December, and this carries out until January of next year.</li>
+	<li>Starting February demand starts to decline and this carries out until the end of Q3.</li>
+</ul>
+
+### 6. Pulling monthly trends for revenue and margin by product, along with total sales and revenue.
+
+```SQL
+CREATE TEMPORARY TABLE products_next_clicks
+SELECT
+    products_viewers.website_session_id AS session_id,
+    products_viewers.created_at,
+    products_viewers.pageview_url AS viewed_page,
+    MIN(website_pageviews.website_pageview_id) AS next_click,
+    MIN(website_pageviews.pageview_url) AS next_clicked_page,
+    MIN(website_pageviews.created_at) AS created_on
+FROM (
+SELECT
+	website_pageview_id,
+    created_at,
+    website_session_id,
+    pageview_url
+FROM 
+	website_pageviews
+WHERE
+	created_at < '2015-03-20'
+	AND pageview_url = '/products'
+) AS products_viewers
+LEFT JOIN website_pageviews
+	ON	products_viewers.website_session_id = website_pageviews.website_session_id 
+    AND website_pageviews.created_at < '2015-03-20'
+    AND website_pageviews.website_pageview_id > products_viewers.website_pageview_id
+GROUP BY
+	1,2,3;
+
+SELECT* FROM products_next_clicks;
+
+SELECT
+	YEAR(created_at) AS yr,
+    	MONTH(created_at) AS mnth, 
+    	COUNT(DISTINCT session_id) AS sessions, 
+    	COUNT(DISTINCT next_click) AS from_products,
+    	COUNT(DISTINCT next_click) / COUNT(DISTINCT session_id) AS prcnt_mvr
+FROM 
+	products_next_clicks
+GROUP BY 
+	1,2;
+
+CREATE TEMPORARY TABLE last_clickss
+SELECT
+    products_viewers.website_session_id AS session_id,
+    products_viewers.created_at,
+    products_viewers.pageview_url AS viewed_page,
+    (website_pageviews.website_pageview_id) AS last_click,
+    (website_pageviews.pageview_url) AS last_clicked_page,
+    (website_pageviews.created_at) AS created_on
+FROM (
+SELECT
+	website_pageview_id,
+    created_at,
+    website_session_id,
+    pageview_url
+FROM 
+	website_pageviews
+WHERE
+	created_at < '2015-03-20'
+	AND pageview_url = '/products'
+) AS products_viewers
+LEFT JOIN website_pageviews
+	ON	products_viewers.website_session_id = website_pageviews.website_session_id 
+    AND website_pageviews.created_at < '2015-03-20'
+    AND website_pageviews.website_pageview_id > products_viewers.website_pageview_id;
+
+SELECT
+	YEAR(created_at) AS yr,
+    	MONTH(created_at) AS mnth, 
+    	COUNT(DISTINCT session_id) AS sessions, 
+    	COUNT(DISTINCT CASE WHEN last_clicked_page = '/thank-you-for-your-order' THEN last_click ELSE NULL END) AS sessions_w_orders,
+    	COUNT(DISTINCT CASE WHEN last_clicked_page = '/thank-you-for-your-order' THEN last_click ELSE NULL END) / COUNT(DISTINCT session_id) AS prcnt_mvr
+FROM 
+	last_clickss
+GROUP BY 
+	1,2;
+```
+<img src="Q6P1.jpg">
+<img src="Q6P2.jpg">
+<ul>
+	<li>The amount of users visiting the /products page is increasing over time.</li>
+	<li>Data for Q1 2015 is not yet complete thus the "decline" in the graph.</li>
+	<li>The amount of users that place an order after visiting the /products page is also steadily increasing.</li>
 </ul>
