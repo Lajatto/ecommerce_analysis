@@ -317,8 +317,8 @@ GROUP BY
 <ul>
 	<li>Buyers of the Hudson River Bear are more inclined to purchase the Sugar Panda Bear too.</li>
 	<li>Buyers of the Mr Fuzzy Bear are more inclined to purchase the Sugar Panda Bear too.</li>
-	<li>Buyers of the Love Bear are more inclined to purchase the SMr Fuzzy Bear too.</li>
-	<li>Buyers of the Sugar Panda Bear are more inclined to purchase the SMr Fuzzy Bear too.</li>
+	<li>Buyers of the Love Bear are more inclined to purchase the Mr Fuzzy Bear too.</li>
+	<li>Buyers of the Sugar Panda Bear are more inclined to purchase the Mr Fuzzy Bear too.</li>
 	<li> Mr Fuzzy and Sugar Panda Bears are the most cross-selled item of the four products.</li>
 </ul>
 	
