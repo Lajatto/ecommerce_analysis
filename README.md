@@ -4,6 +4,8 @@
 
 I used MYSQL to do my SQL queries and house my data. Google Looker Studio was used to visualize the results. 
 
+Google looker studio dashboard can be found <a href="https://lookerstudio.google.com/u/0/reporting/f52d1e60-158b-491a-b419-144e640c4386/page/HSSMD"> here </a>
+
 ### 1.  Pull overall session and order volume, trended by quarter for the life of the business. 
 
 ```SQL
@@ -21,3 +23,6 @@ WHERE
 GROUP BY 
 	1,2;
 ```
+
+<img src="Q1.jpg">
+</a>
