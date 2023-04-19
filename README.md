@@ -177,7 +177,7 @@ FROM
 GROUP BY 
 	1;
 ```
-<img src="Q5.jpg">
+<img src="Q55.jpg">
 <ul>
 	<li>Demand for all the four products is at the highest in November, December, and this carries out until January of next year.</li>
 	<li>Starting February demand starts to decline and this carries out until the end of Q3.</li>
