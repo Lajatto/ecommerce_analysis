@@ -255,5 +255,59 @@ GROUP BY
 <ul>
 	<li>The amount of users visiting the /products page is increasing over time.</li>
 	<li>Data for Q1 2015 is not yet complete thus the "decline" in the graph.</li>
-	<li>The amount of users that place an order after visiting the /products page is also steadily increasing.</li>
+	<li>The amount of users that visits another page after visiting the /products page is also steadily increasing.</li>
+	<li>Conversion rate for users that have visited the /products page is also increasing.</li>
 </ul>
+
+### 7. Pull sales data since the 4th product was introduced on Dec 5, 2014 and show well each product cross sells with each other.
+
+```SQL 
+CREATE TEMPORARY TABLE primary_products
+SELECT 
+	orders.primary_product_id,
+    orders.order_id
+FROM orders
+WHERE 
+	orders.created_at > '2014-12-05';
+   
+ SELECT
+ CASE
+    WHEN primary_products.primary_product_id = 1 THEN 'Mr_Fuzzy'
+    WHEN primary_products.primary_product_id = 2 THEN 'Love_Bear'
+    WHEN primary_products.primary_product_id = 3 THEN 'Sugar_Panda'
+    WHEN primary_products.primary_product_id = 4 THEN 'Hudson_River'
+    END AS product_name,
+    COUNT(DISTINCT xsell_items.order_id) AS total_orders,
+    COUNT(DISTINCT CASE WHEN xsell_items.product_id = 1 AND xsell_items.is_primary_item = 0 THEN xsell_items.order_id ELSE NULL END) AS mr_fuzzy_xsell,
+	COUNT(DISTINCT CASE WHEN xsell_items.product_id = 2 AND xsell_items.is_primary_item = 0 THEN xsell_items.order_id ELSE NULL END) AS love_bear_xsell,
+    COUNT(DISTINCT CASE WHEN xsell_items.product_id = 4 AND xsell_items.is_primary_item = 0 THEN xsell_items.order_id ELSE NULL END) AS hudson_xsell,
+    COUNT(DISTINCT CASE WHEN xsell_items.product_id = 3 AND xsell_items.is_primary_item = 0 THEN xsell_items.order_id ELSE NULL END) AS sugar_panda_xsell,
+    COUNT(DISTINCT CASE WHEN xsell_items.product_id = 1 AND xsell_items.is_primary_item = 0 THEN xsell_items.order_id ELSE NULL END) / COUNT(DISTINCT xsell_items.order_id) AS fuzzy_xsell_rate,
+    COUNT(DISTINCT CASE WHEN xsell_items.product_id = 2 AND xsell_items.is_primary_item = 0 THEN xsell_items.order_id ELSE NULL END) / COUNT(DISTINCT xsell_items.order_id) AS love_bear_xsell_rate,
+    COUNT(DISTINCT CASE WHEN xsell_items.product_id = 4 AND xsell_items.is_primary_item = 0 THEN xsell_items.order_id ELSE NULL END) / COUNT(DISTINCT xsell_items.order_id) AS hudson_xsell_rate,
+    COUNT(DISTINCT CASE WHEN xsell_items.product_id = 3 AND xsell_items.is_primary_item = 0 THEN xsell_items.order_id ELSE NULL END) / COUNT(DISTINCT xsell_items.order_id) AS sugar_panda_xsell_rate
+ FROM (
+SELECT 
+	order_items.order_id,
+	order_items.product_id,
+    order_items.is_primary_item
+FROM 
+	order_items
+WHERE 
+	order_items.created_at > '2014-12-05'
+) AS xsell_items
+	LEFT JOIN primary_products
+		ON primary_products.order_id = xsell_items.order_id
+GROUP BY 
+	1;
+```
+<img src="Q7.jpg">
+<ul>
+	<li>Buyers of the Hudson River Bear are more inclined to purchase the Sugar Panda Bear too.</li>
+	<li>Buyers of the Mr Fuzzy Bear are more inclined to purchase the Sugar Panda Bear too.</li>
+	<li>Buyers of the Love Bear are more inclined to purchase the SMr Fuzzy Bear too.</li>
+	<li>Buyers of the Sugar Panda Bear are more inclined to purchase the SMr Fuzzy Bear too.</li>
+	<li> Mr Fuzzy and Sugar Panda Bears are the most cross-selled item of the four products.</li>
+</ul>
+	
+	
