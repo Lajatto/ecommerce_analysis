@@ -1,6 +1,6 @@
-## <a href="https://lajatto.github.io/">Back to homepage</a>
-
 # E-commerce Website Analysis
+
+## <a href="https://lajatto.github.io/">Back to homepage</a>
 
 **Situation** I'm working as a data analyst for an ecommerce company. Time period is 2012 - 2015. The following analysis need to be made in order to show that the company is growing in terms of revenue, orders, and website sessions. 
 
